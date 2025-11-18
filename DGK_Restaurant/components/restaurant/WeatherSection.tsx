@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { WeatherInfo } from '@/lib/parseApi';
+import { WeatherInfo } from '@/lib/weather';
 
 import { OptionPicker } from './OptionPicker';
 import { layout, palette } from './theme';

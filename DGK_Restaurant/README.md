@@ -1,50 +1,73 @@
-# Welcome to your Expo app 👋
+# DGK Restaurante
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo Expo Router que replica o painel DGK: CRUD completo de pratos, consulta de clima, listagem de unidades e tela dedicada à equipe. Todo o estado é centralizado com **Zustand** e as telas consomem um provedor de dados configurável (Back4App/Parse ou Supabase REST) + API pública de clima.
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Como executar
 
 ```bash
-npm run reset-project
+npm install
+npx expo start --tunnel
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Use o QR Code exibido pelo Metro para abrir o app via **Expo Go**. O parâmetro `--tunnel` garante que o dispositivo móvel acesse o servidor mesmo fora da mesma rede.
 
-## Learn more
+## Telas e recursos
 
-To learn more about developing your project with Expo, look at the following resources:
+- **Home** – dashboard do cardápio com formulário, filtros, ordenação, alternância de disponibilidade, estatísticas e clima por cidade.
+- **Sobre** – apresenta todas as unidades cadastradas e quantos pratos pertencem a cada uma (relacionamento *Menu → Unit*).
+- **Equipe** – lista membros do time vinculados às respectivas unidades, permite filtrar por filial e enviar uma mensagem rápida.
+- **Estado global** – toda a lógica (menu, filtros, formulários, unidades, equipe e clima) vive em `hooks/useRestaurantStore.ts` com Zustand.
+- **Interações** – botões, pickers customizados, inputs numéricos, switches e textareas adaptados para mobile.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Configuração do back-end
 
-## Join the community
+A aplicação lê as credenciais em variáveis `EXPO_PUBLIC_*` (arquivo `.env` ou `app.json > extra`). Defina também os nomes das coleções/tabelas se preferir outros valores.
 
-Join our community of developers creating universal apps.
+### Variáveis comuns
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Chave | Descrição |
+| --- | --- |
+| `EXPO_PUBLIC_API_PROVIDER` | `back4app` (padrão) ou `supabase`. |
+| `EXPO_PUBLIC_MENU_COLLECTION` | Nome da entidade de pratos (`Menu`). |
+| `EXPO_PUBLIC_UNIT_COLLECTION` | Nome da entidade de unidades (`Unit`). |
+| `EXPO_PUBLIC_TEAM_COLLECTION` | Nome da entidade de equipe (`Team`). |
+
+### Back4App / Parse
+
+```env
+EXPO_PUBLIC_API_PROVIDER=back4app
+EXPO_PUBLIC_PARSE_APP_ID=seuAppId
+EXPO_PUBLIC_PARSE_REST_KEY=suaRestKey
+EXPO_PUBLIC_PARSE_SERVER_URL=https://parseapi.back4app.com
+```
+
+Crie as classes `Menu`, `Unit` e `Team` com os seguintes campos: `name (String)`, `description (String)`, `price (Number)`, `category (String)`, `unit (String)` para pratos; `city`, `address`, `phone`, `weatherLocation` para unidades; `role`, `bio`, `unitId` para equipe.
+
+### Supabase (alternativa ao Back4App)
+
+```env
+EXPO_PUBLIC_API_PROVIDER=supabase
+EXPO_PUBLIC_SUPABASE_URL=https://SUAPROJECT.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=suaChaveAnon
+```
+
+- Ative o módulo REST e habilite as tabelas `Menu`, `Unit` e `Team`.
+- Garanta campos equivalentes aos mencionados acima (a chave primária `id` é usada automaticamente).
+
+Com isso o app pode trocar de provedor sem alterações de código – basta ajustar as variáveis.
+
+## Scripts úteis
+
+| Comando | Ação |
+| --- | --- |
+| `npm start` | Inicia o Expo CLI (mesmo que `npx expo start`). |
+| `npm run android/ios/web` | Abre cada plataforma diretamente. |
+| `npm run lint` | Valida o código com as regras do Expo. |
+
+## Estrutura destacada
+
+- `app/(tabs)` – rotas Home, Sobre e Equipe com Expo Router.
+- `components/restaurant` – UI compartilhada (tabela, formulário, filtros, picker, etc.).
+- `hooks/useRestaurantStore.ts` – estado global + ações (CRUD, filtros, clima, unidades e equipe).
+- `lib/dataClient.ts` – client abstrato para Back4App ou Supabase.
+- `lib/weather.ts` – integração com Open-Meteo para o painel de clima.

@@ -1,15 +1,9 @@
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { FiltersState } from '@/hooks/useRestaurantStore';
+
 import { OptionPicker } from './OptionPicker';
 import { layout, palette } from './theme';
-
-type FiltersState = {
-  name: string;
-  category: string;
-  availability: string;
-  minPrice: string;
-  maxPrice: string;
-};
 
 type Props = {
   filters: FiltersState;

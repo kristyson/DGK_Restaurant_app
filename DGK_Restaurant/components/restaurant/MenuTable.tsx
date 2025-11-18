@@ -1,16 +1,9 @@
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { layout, palette } from './theme';
+import { MenuItem } from '@/lib/dataClient';
+import { SortConfig } from '@/hooks/useRestaurantStore';
 
-type MenuItem = {
-  objectId: string;
-  name: string;
-  description?: string;
-  price?: number;
-  category?: string;
-  unit?: string;
-  available?: boolean;
-};
+import { layout, palette } from './theme';
 
 type Props = {
   sortedItems: MenuItem[];
@@ -21,8 +14,8 @@ type Props = {
   handleEdit: (item: MenuItem) => void;
   handleToggleAvailability: (item: MenuItem) => void;
   handleDelete: (item: MenuItem) => void;
-  toggleSort: (key: 'name' | 'price' | 'unit') => void;
-  renderSortIndicator: (key: string) => string | null;
+  toggleSort: (key: SortConfig['key']) => void;
+  sortConfig: SortConfig;
 };
 
 function formatCurrency(value?: number) {
@@ -44,8 +37,13 @@ export function MenuTable({
   handleToggleAvailability,
   handleDelete,
   toggleSort,
-  renderSortIndicator,
+  sortConfig,
 }: Props) {
+  const renderSortIndicator = (column: SortConfig['key']) => {
+    if (sortConfig.key !== column) return '';
+    return sortConfig.direction === 'asc' ? ' ↑' : ' ↓';
+  };
+
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
@@ -107,7 +105,7 @@ export function MenuTable({
             </View>
 
             {sortedItems.map((item) => (
-              <View key={item.objectId} style={styles.row}>
+              <View key={item.id} style={styles.row}>
                 <View style={styles.cell}>
                   <Text style={styles.cellText}>{item.name}</Text>
                 </View>

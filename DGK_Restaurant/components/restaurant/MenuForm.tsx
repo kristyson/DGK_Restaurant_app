@@ -1,17 +1,9 @@
 import { StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+import { FormData } from '@/hooks/useRestaurantStore';
+
 import { OptionPicker } from './OptionPicker';
 import { layout, palette } from './theme';
-
-type FormData = {
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  unit: string;
-  available: boolean;
-  applyAllUnits: boolean;
-};
 
 type Props = {
   editingId: string | null;
