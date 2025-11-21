@@ -1,98 +1,150 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Filters } from '@/components/restaurant/Filters';
+import { Footer } from '@/components/restaurant/Footer';
+import { Header } from '@/components/restaurant/Header';
+import { MenuForm } from '@/components/restaurant/MenuForm';
+import { MenuTable } from '@/components/restaurant/MenuTable';
+import { WeatherSection } from '@/components/restaurant/WeatherSection';
+import { layout, palette } from '@/components/restaurant/theme';
+import { useRestaurantStore } from '@/hooks/useRestaurantStore';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const menuItems = useRestaurantStore((state) => state.menuItems);
+  const filters = useRestaurantStore((state) => state.filters);
+  const sortConfig = useRestaurantStore((state) => state.sortConfig);
+  const formData = useRestaurantStore((state) => state.formData);
+  const editingId = useRestaurantStore((state) => state.editingId);
+  const isSaving = useRestaurantStore((state) => state.isSaving);
+  const isLoadingMenu = useRestaurantStore((state) => state.isLoadingMenu);
+  const statusMessage = useRestaurantStore((state) => state.statusMessage);
+  const weatherCity = useRestaurantStore((state) => state.weatherCity);
+  const weatherInfo = useRestaurantStore((state) => state.weatherInfo);
+  const weatherMessage = useRestaurantStore((state) => state.weatherMessage);
+  const unitOptions = useRestaurantStore((state) => state.unitOptions);
+  const categoryOptions = useRestaurantStore((state) => state.categoryOptions);
+  const locationOptions = useRestaurantStore((state) => state.locationOptions);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const updateForm = useRestaurantStore((state) => state.updateForm);
+  const updateFilter = useRestaurantStore((state) => state.updateFilter);
+  const toggleSort = useRestaurantStore((state) => state.toggleSort);
+  const submitForm = useRestaurantStore((state) => state.submitForm);
+  const cancelEdit = useRestaurantStore((state) => state.cancelEdit);
+  const startEdit = useRestaurantStore((state) => state.startEdit);
+  const toggleAvailability = useRestaurantStore((state) => state.toggleAvailability);
+  const deleteItem = useRestaurantStore((state) => state.deleteItem);
+  const loadMenu = useRestaurantStore((state) => state.loadMenu);
+  const setWeatherCity = useRestaurantStore((state) => state.setWeatherCity);
+  const loadWeather = useRestaurantStore((state) => state.loadWeather);
+  const loadUnits = useRestaurantStore((state) => state.loadUnits);
+
+  useEffect(() => {
+    void loadMenu();
+    void loadUnits();
+  }, [loadMenu, loadUnits]);
+
+  useEffect(() => {
+    void loadWeather(weatherCity);
+  }, [loadWeather, weatherCity]);
+
+  const selectableCategories = useMemo(() => {
+    const combined = new Set(categoryOptions);
+    menuItems.forEach((item) => {
+      if (item?.category) {
+        combined.add(item.category);
+      }
+    });
+    return Array.from(combined);
+  }, [categoryOptions, menuItems]);
+
+  const filteredItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      if (weatherCity !== 'TODOS' && item.unit !== weatherCity) return false;
+      if (filters.name && !item.name?.toLowerCase().includes(filters.name.toLowerCase())) return false;
+      if (filters.category !== 'TODAS' && item.category !== filters.category) return false;
+      if (filters.availability !== 'TODOS') {
+        const isAvailable = item.available !== false;
+        if (filters.availability === 'DISPONIVEL' && !isAvailable) return false;
+        if (filters.availability === 'INDISPONIVEL' && isAvailable) return false;
+      }
+      if (filters.minPrice && typeof item.price === 'number' && item.price < Number(filters.minPrice)) return false;
+      if (filters.maxPrice && typeof item.price === 'number' && item.price > Number(filters.maxPrice)) return false;
+      return true;
+    });
+  }, [filters, menuItems, weatherCity]);
+
+  const sortedItems = useMemo(() => {
+    const items = [...filteredItems];
+    const { key, direction } = sortConfig;
+    items.sort((a, b) => {
+      const valueA = key === 'price' ? a.price ?? -Infinity : (a[key] ?? '').toString().toLowerCase();
+      const valueB = key === 'price' ? b.price ?? -Infinity : (b[key] ?? '').toString().toLowerCase();
+      if (valueA < valueB) return direction === 'asc' ? -1 : 1;
+      if (valueA > valueB) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return items;
+  }, [filteredItems, sortConfig]);
+
+  const totalAvailable = useMemo(
+    () => filteredItems.filter((item) => item.available !== false).length,
+    [filteredItems],
+  );
+
+  return (
+    <ScrollView style={styles.page} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.container}>
+        <Header totalItems={menuItems.length} availableItems={totalAvailable} />
+        <WeatherSection
+          weatherCity={weatherCity}
+          setWeatherCity={setWeatherCity}
+          locationOptions={locationOptions}
+          weatherInfo={weatherInfo}
+          weatherMessage={weatherMessage}
+        />
+        <MenuForm
+          editingId={editingId}
+          formData={formData}
+          selectableCategories={selectableCategories}
+          unitOptions={unitOptions}
+          updateForm={updateForm}
+          handleSubmit={submitForm}
+          handleCancelEdit={cancelEdit}
+          isSaving={isSaving}
+        />
+        <Filters filters={filters} updateFilter={updateFilter} selectableCategories={selectableCategories} />
+        <MenuTable
+          sortedItems={sortedItems}
+          totalAvailable={totalAvailable}
+          isLoadingMenu={isLoadingMenu}
+          statusMessage={statusMessage}
+          refreshMenu={loadMenu}
+          handleEdit={startEdit}
+          handleToggleAvailability={toggleAvailability}
+          handleDelete={deleteItem}
+          toggleSort={toggleSort}
+          sortConfig={sortConfig}
+        />
+        <Footer />
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  page: {
+    flex: 1,
+    backgroundColor: palette.background,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  scrollContent: {
+    paddingVertical: 32,
+    paddingHorizontal: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  container: {
+    maxWidth: 1080,
+    width: '100%',
+    alignSelf: 'center',
+    gap: layout.spacing,
   },
 });
