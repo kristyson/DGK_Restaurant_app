@@ -49,7 +49,14 @@
       "router": {},
       "eas": {
         "projectId": "1072b9a2-efea-4cd1-be31-89479d3f2e94"
-      }
+      },
+      "EXPO_PUBLIC_API_PROVIDER": "back4app",
+      "EXPO_PUBLIC_PARSE_APP_ID": "pNVxg3NT3JEjb3nf1lxe08CaOurqvo4UB696F2Nm",
+      "EXPO_PUBLIC_PARSE_REST_KEY": "lfBJsVApepUZ1xoooif52gGnGmADQZHhztxD5vb",
+      "EXPO_PUBLIC_PARSE_SERVER_URL": "https://parseapi.back4app.com/",
+      "EXPO_PUBLIC_MENU_COLLECTION": "Menu",
+      "EXPO_PUBLIC_TEAM_COLLECTION": "Team",
+      "EXPO_PUBLIC_UNIT_COLLECTION": "Unit"
     },
     "runtimeVersion": {
       "policy": "appVersion"

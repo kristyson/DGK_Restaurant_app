@@ -66,7 +66,9 @@ async function parseRequest<T>(path: string, options: RequestInit & { body?: unk
     throw new Error('Configure as variáveis do Back4App/Parse antes de continuar.');
   }
 
-  const response = await fetch(`${PARSE_SERVER_URL}${path}`, {
+  const baseUrl = PARSE_SERVER_URL.endsWith('/') ? PARSE_SERVER_URL.slice(0, -1) : PARSE_SERVER_URL;
+
+  const response = await fetch(`${baseUrl}${path}`, {
     method: options.method ?? 'GET',
     headers: {
       'X-Parse-Application-Id': PARSE_APP_ID,

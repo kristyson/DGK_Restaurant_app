@@ -34,14 +34,21 @@ A aplicação lê as credenciais em variáveis `EXPO_PUBLIC_*` (arquivo `.env` o
 
 ### Back4App / Parse
 
-```env
-EXPO_PUBLIC_API_PROVIDER=back4app
-EXPO_PUBLIC_PARSE_APP_ID=seuAppId
-EXPO_PUBLIC_PARSE_REST_KEY=suaRestKey
-EXPO_PUBLIC_PARSE_SERVER_URL=https://parseapi.back4app.com
+`app.json` já traz os valores do seu projeto Back4App:
+
+```jsonc
+"extra": {
+  "EXPO_PUBLIC_API_PROVIDER": "back4app",
+  "EXPO_PUBLIC_PARSE_APP_ID": "pNVxg3NT3JEjb3nf1lxe08CaOurqvo4UB696F2Nm",
+  "EXPO_PUBLIC_PARSE_REST_KEY": "lfBJsVApepUZ1xoooif52gGnGmADQZHhztxD5vb",
+  "EXPO_PUBLIC_PARSE_SERVER_URL": "https://parseapi.back4app.com/",
+  "EXPO_PUBLIC_MENU_COLLECTION": "Menu",
+  "EXPO_PUBLIC_TEAM_COLLECTION": "Team",
+  "EXPO_PUBLIC_UNIT_COLLECTION": "Unit"
+}
 ```
 
-Crie as classes `Menu`, `Unit` e `Team` com os seguintes campos: `name (String)`, `description (String)`, `price (Number)`, `category (String)`, `unit (String)` para pratos; `city`, `address`, `phone`, `weatherLocation` para unidades; `role`, `bio`, `unitId` para equipe.
+Caso prefira `.env`, use os mesmos valores acima. Crie as classes `Menu`, `Unit` e `Team` com os seguintes campos: `name (String)`, `description (String)`, `price (Number)`, `category (String)`, `unit (String)` para pratos; `city`, `address`, `phone`, `weatherLocation` para unidades; `role`, `bio`, `unitId` para equipe.
 
 ### Supabase (alternativa ao Back4App)
 
